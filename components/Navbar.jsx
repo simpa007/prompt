@@ -6,19 +6,20 @@ import { signIn, signOut, useSession, getProviders } from "next-auth/react";
 import logo from "../assets/images/bird_2-removebg.png";
 import profile from "../assets/images/profile.jpg";
 export default function Navbar() {
-	const [isUserLoggedIn, setIsUserLoggedIn] = useState(true);
+	const { data: session } = useSession();
 	const [toggleDropdown, setToggleDropdown] = useState(false);
 
 	const [providers, setProviders] = useState(null);
 
 	useEffect(() => {
-		const setProviders = async () => {
+		const setUpProviders = async () => {
 			const reponse = await getProviders();
 
 			setProviders(reponse);
 		};
-		setProviders();
+		setUpProviders();
 	}, []);
+
 	return (
 		<nav className="flex-between w-full mb-16 pt-3">
 			<Link href="/" className="flex gap-2 flex-center">
@@ -34,7 +35,7 @@ export default function Navbar() {
 
 			{/* Desktop Navigation */}
 			<div className="sm:flex hidden">
-				{isUserLoggedIn ? (
+				{session?.user ? (
 					<div className="flex gap-3 md:gap-5">
 						<Link href="/create-prompt" className="black_btn">
 							Create Post
@@ -57,22 +58,23 @@ export default function Navbar() {
 					<>
 						{providers &&
 							Object.values(providers).map((provider) => {
-								<button
-									type="button"
-									key={provider.name}
-									onClick={() => signIn(provider.id)}
-									className="black_btn"
-								>
-									Sign In
-								</button>;
+								return (
+									<button
+										type="button"
+										key={provider.name}
+										onClick={() => signIn(provider.id)}
+										className="black_btn"
+									>
+										Sign In
+									</button>
+								);
 							})}
 					</>
 				)}
 			</div>
-
 			{/* Mobile Navigation */}
 			<div className="sm:hidden flex relative">
-				{isUserLoggedIn ? (
+				{session?.user ? (
 					<div className="flex">
 						<Image
 							src={profile}
